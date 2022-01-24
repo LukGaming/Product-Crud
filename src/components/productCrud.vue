@@ -1,239 +1,296 @@
-<template lang="">
-<div>
-    <div class="d-flex column justify-center ">
-        <h1 v-if="method == 'create'" class="mt-10">Criando um novo Produto</h1>
-        <h1 v-if="method == 'edit'" class="mt-10">Editando Produto - {{id}}</h1>
-        <h1 v-if="method == 'read'" class="mt-10">Visualizando Produto - {{id}}</h1>
-
+<template>
+  <div>
+    <div class="d-flex column justify-center">
+      <h1 v-if="method == 'create'" class="mt-10">Criando um novo Produto</h1>
+      <h1 v-if="method == 'edit'" class="mt-10">Editando Produto - {{ id }}</h1>
+      <h1 v-if="method == 'read'" class="mt-10">Visualizando Produto - {{ id }}</h1>
     </div>
     <div>
-        <!-- Snack bar é a mensagem depois que o produto for criado ou editado -->
-        <v-snackbar v-model="snackbar" :multi-line="multiLine" :color="colorSnackbar" top right class="message">
-            {{sucessMessage}}
+      <!-- Snack bar é a mensagem depois que o produto for criado ou editado -->
+      <SnackBarMessageComponent :SnackBarOptions="SnackBarOptions" />
 
-            <template v-slot:action="{ attrs }">
-                <v-btn :color="colorSnackbarText" text v-bind="attrs" @click="snackbar = false">
-                    fechar
-                </v-btn>
-            </template>
-        </v-snackbar>
+      <v-form lazy-validation class="mx-16">
+        <v-text-field v-model="nome" label="Nome" :readonly="inputsDisabled"></v-text-field>
+        <div v-if="v$.nome.$error">
+          <v-alert color="red" type="warning" dense>
+            O campo de
+            <strong>Nome</strong> deve conter entre 3 e 50 caracteres
+          </v-alert>
+        </div>
+        <div class="valor">
+          Preço R$:
+          <money
+            v-model="valor"
+            v-bind="money"
+            :readonly="inputsDisabled"
+            class="my-4 moeda text--light"
+          ></money>
+        </div>
+        <div class="d-flex">
+          <v-select v-model="select" :items="nome_categorias" label="Categoria"></v-select>
+          <dialogCreateCategoriaComponent
+            :SnackBarOptions="SnackBarOptions"
+            :getAllCategoryes="getAllCategoryes"
+            :dialog="dialog"
+          />
+        </div>
 
-        <v-form ref="form" lazy-validation class="mx-16">
-            <v-text-field v-model="nome" label="Nome" :readonly="inputsDisabled">
-            </v-text-field>
-            <div v-if="v$.nome.$error">
-                <v-alert color="red" type="warning" dense>
-                    O campo de <strong>Nome</strong> deve conter entre 3 e 50 caracteres
-                </v-alert>
-            </div>
+        <div v-if="v$.valor.$error">
+          <v-alert color="red lighten-2" type="warning" dense>
+            Campo de
+            <strong>Valor</strong> não pode ficar vazio
+          </v-alert>
+        </div>
+        <v-textarea v-model="descricao" label="Descricao" :readonly="inputsDisabled"></v-textarea>
+        <div v-if="v$.descricao.$error">
+          <v-alert color="red" type="warning" dense>
+            Campo de
+            <strong>Descricao</strong> deve conter entre 20 e 2000
+            Caracteres
+          </v-alert>
+        </div>
+        <div v-if="method == 'edit'">
+          <v-file-input
+            label="Enviar novas imagens"
+            filled
+            multiple
+            prepend-icon="mdi-camera"
+            v-model="novas_imagens"
+          ></v-file-input>
+        </div>
+        <div v-if="method == 'edit'">
+          <div class="d-flex justify-center">
+            <v-row class="d-flex justify-center mb-16">
+              <v-col v-for="image in imagens" :key="image.id" class="d-flex child-flex" cols="1">
+                <div class="imagens">
+                  <div v-if="method == 'edit'">
+                    <v-icon @click="removerImagem(image.id)">mdi-delete</v-icon>
+                  </div>
+                  <v-img
+                    :src="`http://localhost:8000/${image.caminho_imagem_produto}`"
+                    aspect-ratio="1"
+                    class="grey lighten-2"
+                  >
+                    <template v-slot:placeholder>
+                      <v-row class="fill-height ma-0" align="center" justify="center">
+                        <v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>
+                      </v-row>
+                    </template>
+                  </v-img>
+                </div>
+              </v-col>
+            </v-row>
+          </div>
+        </div>
+        <div v-if="method == 'create'">
+          <v-file-input
+            label="Imagens para o Produto"
+            filled
+            multiple
+            prepend-icon="mdi-camera"
+            v-model="imagens"
+            @change="preview_images"
+          ></v-file-input>
 
-            <v-text-field v-model="valor" label="Valor" type="number" prefix="R$" :readonly="inputsDisabled"></v-text-field>
+          <!--Preview Images-->
+          <div class="d-flex justify-center">
+            <v-row class="d-flex justify-center mb-16">
+              <v-col
+                v-for="(image, index) in imagePreview"
+                :key="image.id"
+                class="d-flex child-flex"
+                cols="1"
+              >
+                <div class="imagens">
+                  <v-icon @click="removerPreviewImage(index)">mdi-delete</v-icon>
+                  <v-img :src="image" aspect-ratio="1" class="grey lighten-2">
+                    <template v-slot:placeholder>
+                      <v-row class="fill-height ma-0" align="center" justify="center">
+                        <v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>
+                      </v-row>
+                    </template>
+                  </v-img>
+                </div>
+              </v-col>
+            </v-row>
+          </div>
+          <!--Preview Images-->
 
-            <div v-if="v$.valor.$error">
-                <v-alert color="red" type="warning" dense>Campo de <strong>Valor</strong> não pode ficar vazio</v-alert>
-            </div>
-            <v-textarea v-model="descricao" label="Descricao" :readonly="inputsDisabled"></v-textarea>
-            <div v-if="v$.descricao.$error">
-                <v-alert color="red" type="warning" dense>Campo de <strong>Descricao</strong> deve conter entre 20 e 2000 Caracteres</v-alert>
-            </div>
-            <div v-if="method == 'create'">
-                <v-btn color="primary" @click="submit" class="mt-10" :loading="loading" :disabled="inputsDisabled">
-                    Cadastrar Produto
-                </v-btn>
-            </div>
-            <div v-if="method == 'edit'" class="d-flex justify-center">
-                <v-btn color="primary" @click="submit" class="mx-10" :loading="loading">
-                    Salvar Alterações
-                </v-btn>
-                <v-btn color="warning" @click="excluirProduto" class="mx-10">
-                    Excluir Produto
-                </v-btn>
-            </div>
-
-        </v-form>
+          <!-- <v-btn
+            color="primary"
+            @click="submit"
+            class="mt-10"
+            :loading="loading"
+            :disabled="inputsDisabled"
+          >
+            Cadastrar Produto
+          </v-btn>-->
+          <v-btn
+            @click="submit"
+            :loading="loading"
+            depressed
+            class="wrapper gold mt-10"
+          >Cadastrar Produto</v-btn>
+        </div>
+        <div v-if="method == 'edit'" class="d-flex justify-center">
+          <!-- <v-btn
+            color="primary"
+            @click="submit"
+            class="mx-10"
+            :loading="loading"
+          >
+            Salvar Alterações
+          </v-btn>
+          <v-btn color="warning" @click="excluirProduto" class="mx-10">
+            Excluir Produto
+          </v-btn>-->
+          <v-btn @click="submit" class="mx-10 wrapper gold" :loading="loading">Salvar Alterações</v-btn>
+          <v-btn @click="excluirProduto" class="wrapper gold mx-10">Excluir Produto</v-btn>
+        </div>
+      </v-form>
     </div>
-</div>
+  </div>
 </template>
 
 <script>
-import useVuelidate from '@vuelidate/core'
-import {
-    useCurrencyInput
-} from 'vue-currency-input'
-import {
-    required,
-    maxLength,
-    minLength,
-    helpers,
-    numeric
-} from '@vuelidate/validators'
+import SnackBarMessageComponent from "../utils/SnackBarMessageComponent.vue";
+import submit from "../modules/produtos/submitProduct.js";
+import getAllCategoryes from "../modules/produtos/getAllCategoryes.js";
+import resetForm from "../modules/produtos/resetForm.js";
+import getProductByID from "../modules/produtos/getProductByID.js";
+import editarProduto from "../modules/produtos/editarProduto.js";
+import excluirProduto from "../modules/produtos/excluirProduto.js";
+import submit_product_images from "../modules/produtos/submit_product_images.js";
+import removerImagem from "../modules/produtos/removerImagem.js";
+import getImagesFromProduct from "../modules/produtos/getImagesFromProduct.js";
+import pegausuario from "../modules/produtos/pegausuario.js";
+import validations from "../modules/produtos/validations.js";
+import useVuelidate from "@vuelidate/core";
+import dialogCreateCategoriaComponent from "../components/dialogCreateCategoriaComponent.vue";
+import useCurrencyInput from "vue-currency-input";
+import VMoney from "v-money";
+
 export default {
+  directives: {
+    money: VMoney,
+  },
+  components: {
+    dialogCreateCategoriaComponent,
+    SnackBarMessageComponent,
+  },
+  setup(props) {
+    const { inputRef } = useCurrencyInput(props.options);
+    return {
+      v$: useVuelidate(),
+      inputRef,
+    };
+  },
+  data() {
+    return {
+      SnackBarOptions: {
+        snackbar: false,
+        snackbarMessage: "",
+      },
+      novas_imagens: [],
+      imagePreview: [],
+      dialog: false,
+      select: [],
+      nome_categorias: [],
+      categorias: [],
+      imagens: [],
+      nova_categoria: "",
+      money: {
+        decimal: ",",
+        thousands: ".",
+        precision: 2,
+        masked: false /* doesn't work with directive */,
+      },
+      inputsDisabled: false,
+      loading: false,
+      colorSnackbar: "",
+      colorSnackbarText: "black",
+      error: "",
+      id: null,
+      nome: null,
+      valor: "",
+      descricao: "",
+      sucessMessage: "",
+      snackbar: false,
+      multiLine: true,
+      method: "create",
+      id_categoria: 0,
+    };
+  },
+  props: {
+    options: Object,
+  },
+  created() {
+    this.getAllCategoryes();
+    if (this.$route.name == "produto/create") {
+      //Em caso da rota ser Create, aparecer os inputs vazios
+      this.method = "create";
+    }
+    this.id = this.$route.params.id;
+    if (this.$route.name == "produto/read") {
+      this.method = "read";
+      this.getProductByID();
+      this.inputsDisabled = true;
+    }
 
-    setup(props) {
-        const {
-            inputRef
-        } = useCurrencyInput(props.options)
-        return {
-            v$: useVuelidate(),
-            inputRef
+    if (this.$route.name == "produto/edit") {
+      this.method = "edit";
+      this.getProductByID();
+    }
+  },
+  methods: {
+    preview_images(e) {
+      for (let i = 0; i < e.length; i++) {
+        let images = e[i];
+        let reader = new FileReader();
+        reader.readAsDataURL(images);
+        reader.onload = (e) => {
+          this.adiciona_fotos(e.target.result);
+          return e;
         };
+      }
+      return e;
     },
-    data() {
-        return {
-            inputsDisabled: false,
-            loading: false,
-            colorSnackbar: "",
-            colorSnackbarText: "black",
-            error: "",
-            id: null,
-            nome: null,
-            valor: "",
-            descricao: "",
-            sucessMessage: "",
-            snackbar: false,
-            multiLine: true,
-            method: "create"
-        };
+    removerPreviewImage(image) {
+      console.log(this.imagePreview);
+      this.imagePreview.splice(image, 1);
+      this.imagens.splice(image, 1);
+      return image;
     },
-    props: {
-
-        options: Object
+    adiciona_fotos(event) {
+      this.imagePreview.push(event);
     },
-    created() {
-        console.log(this.$route.name)
-        if (this.$route.name == "produto/create") {
-            //Em caso da rota ser Create, aparecer os inputs vazios
-            this.method = "create";
-
-        }
-
-        this.id = this.$route.params.id;
-        if (this.$route.name == "produto/read") {
-            this.method = "read";
-            this.getProductByID();
-            this.inputsDisabled = true
-        }
-
-        if (this.$route.name == "produto/edit") {
-            this.method = "edit";
-            this.getProductByID();
-        }
-    },
-    methods: {
-        async submit() {
-            if (this.method == "create") {
-                const isFormCorrect = await this.v$.$validate()
-                if (!isFormCorrect) {
-                    return
-                } else {
-                    this.loading = true
-                    this.$http.post('produtos', {
-                        id: null,
-                        nome: this.nome,
-                        valor: this.valor,
-                        descricao: this.descricao
-                    }).then(res => {
-                        setTimeout(() => {
-                            this.v$.$reset()
-                            this.resetForm();
-                            this.loading = false
-                            this.colorSnackbar = "success",
-                                this.colorSnackbarText = "black"
-                            this.sucessMessage = "Produto Criado com sucesso";
-                            this.snackbar = true
-                        }, 1000);
-
-                        return res
-                    })
-                }
-                return;
-            }
-            if (this.method == "edit") {
-                const isFormCorrect = await this.v$.$validate()
-                if (!isFormCorrect) {
-                    return
-                } else {
-                    this.editarProduto()
-                }
-                return isFormCorrect;
-            }
-        },
-        getProductByID() {
-            this.$http.get(`produtos/${this.id}`, {}).then(res => {
-                this.nome = res.data.nome;
-                this.valor = res.data.valor,
-                    this.descricao = res.data.descricao
-            })
-        },
-        beforeRouteLeave(to, from, next) {
-            alert("Ok")
-            console.log(to)
-            console.log(from)
-            console.log(next)
-        },
-        resetForm() {
-            this.id = null;
-            this.nome = ""
-            this.valor = ""
-            this.descricao = ""
-        },
-        editarProduto() {
-            this.loading = true;
-            this.$http.patch(`produtos/${this.id}`, {
-                nome: this.nome,
-                valor: this.valor,
-                descricao: this.descricao
-            }).then(res => {
-                this.v$.$reset()
-                this.sucessMessage = "Produto Editado com sucesso";
-                setTimeout(() => {
-                    this.snackbar = true
-                    this.loading = false;
-                }, 1000);
-
-                return res
-            })
-        },
-        excluirProduto() {
-            if (confirm("Deseja realmente excluir o produto " + this.id + " ?")) {
-                this.$http.delete(`produtos/${this.id}`, {}).then(res => {
-                    this.v$.$reset()
-                    this.colorSnackbar = "red"
-                    this.sucessMessage = "Produto Excluido com sucesso";
-                    this.colorSnackbarText = "light"
-                    this.snackbar = true
-                    this.resetForm()
-                    this.method = "create";
-                    return res
-                })
-            }
-
-        }
-    },
-    validations() {
-        return {
-            nome: {
-                required: helpers.withMessage("O campo de <strong>Nome</strong> não pode ficar vazio", required),
-                minLength: minLength(3),
-                maxLength: maxLength(100)
-
-            },
-            valor: {
-                required,
-                numeric
-            },
-            descricao: {
-                required,
-                minLength: minLength(20),
-                maxLength: maxLength(2000)
-            },
-        };
-    },
+    ...submit,
+    ...getAllCategoryes,
+    ...resetForm,
+    ...getProductByID,
+    ...editarProduto,
+    ...excluirProduto,
+    ...submit_product_images,
+    ...removerImagem,
+    ...getImagesFromProduct,
+    ...pegausuario,
+  },
+  ...validations,
 };
 </script>
 
 <style>
 .message {
-    margin-top: 60px;
+  margin-top: 60px;
+}
+
+.moeda {
+  padding: 10px;
+  font-size: 1.2rem;
+}
+
+.valor {
+  font-size: 1.2rem;
+  color: white;
 }
 </style>

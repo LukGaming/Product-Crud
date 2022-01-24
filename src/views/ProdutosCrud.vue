@@ -1,16 +1,13 @@
 <template>
 <div>
-
     <v-container>
-        
-            <ProductCrud />
-       
+        <ProductCrud />
     </v-container>
 </div>
 </template>
 
 <script>
-import ProductCrud from '../components/productCrud.vue'
+import ProductCrud from "../components/productCrud.vue";
 export default {
     data() {
         return {
@@ -18,10 +15,12 @@ export default {
         };
     },
     components: {
-        ProductCrud
+        ProductCrud,
     },
     created() {
-
+        // if (!this.$session.exists()) {
+        //     this.$router.push("/login");
+        // }
     },
 };
 </script>
