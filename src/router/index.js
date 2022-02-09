@@ -8,6 +8,7 @@ import Register from '../views/Register'
 import Categorias from '../views/Categorias'
 import CategoriaCrud from '../views/CategoriaCrud'
 import Perfil from '../views/Perfil'
+import Canvas from '../views/Canvas.vue'
 Vue.use(Router)
 
 export default new Router({
@@ -77,6 +78,11 @@ export default new Router({
       path: '/perfil/edit',
       name: 'perfil/edit',
       component: Perfil
+    },{
+      path: '/canvas',
+      name: 'canvas',
+      component: Canvas
     }
+    
   ]
 })

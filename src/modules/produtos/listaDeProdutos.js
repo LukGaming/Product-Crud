@@ -2,7 +2,7 @@ export default {
   async listaDeProdutos () {
     this.desserts = []
     var $produtos = await this.$http('api/produtos')
-    console.log($produtos)
+
     var $usuarios_criadores = []
     for (let i = 0; i < $produtos.data.data.length; i++) {
       $usuarios_criadores.push($produtos.data.data[i].id_user_criador)

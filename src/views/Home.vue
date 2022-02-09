@@ -3,17 +3,15 @@
     <div class="text-center mt-16">
       <SnackBarMessageComponent :SnackBarOptions="SnackBarOptions" />
     </div>
-    <teste nome="Teste" secondary large rounded />
+    Teste
   </div>
 </template>
 
 <script>
-import teste from '../stories/teste'
 import SnackBarMessageComponent from "../utils/SnackBarMessageComponent.vue";
 export default {
   components: {
     SnackBarMessageComponent,
-    teste
   },
 
   data() {

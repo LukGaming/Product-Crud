@@ -9,6 +9,7 @@ import 'animate.css';
 import './plugins/money.js'
 import './utils/button_gold.css';
 import '../node_modules/vue-anka-cropper/dist/VueAnkaCropper.css';
+import './plugins/konva'
 Vue.config.productionTip = false
 
 new Vue({

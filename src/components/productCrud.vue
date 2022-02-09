@@ -8,7 +8,26 @@
     <div>
       <!-- Snack bar é a mensagem depois que o produto for criado ou editado -->
       <SnackBarMessageComponent :SnackBarOptions="SnackBarOptions" />
-
+      <v-text-field v-model="shipsData.Color" :v-mask="mask" hide-details class="ma-0 pa-0" solo>
+        <template v-slot:append>
+          <v-menu
+            v-model="menu"
+            top
+            nudge-bottom="105"
+            nudge-left="16"
+            :close-on-content-click="false"
+          >
+            <template v-slot:activator="{ on }">
+              <div :style="swatchStyle" v-on="on" />
+            </template>
+            <v-card>
+              <v-card-text class="pa-0">
+                <v-color-picker v-model="shipsData.Color" flat />
+              </v-card-text>
+            </v-card>
+          </v-menu>
+        </template>
+      </v-text-field>
       <v-form lazy-validation class="mx-16">
         <v-text-field v-model="nome" label="Nome" :readonly="inputsDisabled"></v-text-field>
         <div v-if="v$.nome.$error">
@@ -185,8 +204,27 @@ export default {
       inputRef,
     };
   },
+
+  computed: {
+    swatchStyle() {
+      const { menu } = this
+      return {
+        backgroundColor: this.shipsData.Color,
+        cursor: 'pointer',
+        height: '30px',
+        width: '30px',
+        borderRadius: menu ? '50%' : '4px',
+        transition: 'border-radius 200ms ease-in-out'
+      }
+    }
+  },
   data() {
     return {
+      shipsData: {
+        Color: '#1976D2FF'
+      },
+      mask: '#XXXXXXXX',
+      menu: false,
       SnackBarOptions: {
         snackbar: false,
         snackbarMessage: "",
@@ -276,7 +314,8 @@ export default {
     ...pegausuario,
   },
   ...validations,
-};
+}
+
 </script>
 
 <style>
