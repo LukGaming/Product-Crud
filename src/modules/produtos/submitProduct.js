@@ -1,6 +1,5 @@
 export default {
   async submit () {
-    console.log(this.valor)
     if (this.method == 'create') {
       const isFormCorrect = await this.v$.$validate()
       if (!isFormCorrect) {
@@ -12,24 +11,25 @@ export default {
             this.id_categoria = this.categorias.data[i].id
           }
         }
-        var $produto = await this.$http.post('api/produtos', {
-          nome: this.nome,
-          valor: this.valor,
-          descricao: this.descricao,
-          user_id: localStorage.getItem('userId'),
-          id_categoria: this.id_categoria
+        console.log(this.imagens)
+        var formData = new FormData()
+        this.imagens.forEach((image) => {
+          formData.append('images[]', image)
         })
-        setTimeout(() => {
+        formData.append('nome', this.nome)
+        formData.append('valor', this.valor)
+        formData.append('descricao', this.descricao)
+        formData.append('user_id', localStorage.getItem('userId'))
+        formData.append('id_categoria', this.id_categoria)
+        this.$http.post('api/produtos', formData).then(res => {
           this.v$.$reset()
           this.resetForm()
           this.loading = false
           this.SnackBarOptions.snackbarMessage = 'Produto Criado com sucesso'
           this.SnackBarOptions.snackbar = true
           this.select = ''
-        }, 1000)
-
-        this.id = $produto.data.produto.id
-        this.submit_product_images()
+          return res
+        })
       }
       return
     }
