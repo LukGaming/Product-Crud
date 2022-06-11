@@ -1,23 +1,20 @@
 <template>
-<div>
-    <v-container>
-        <ProductCrud />
-    </v-container>
-</div>
+  <div>
+    <ProductCrud />
+  </div>
 </template>
 
 <script>
 import ProductCrud from "../components/productCrud.vue";
 export default {
-    data() {
-        return {
-            method: "create",
-        };
-    },
-    components: {
-        ProductCrud,
-    },
-    created() {
-    },
+  data() {
+    return {
+      method: "create",
+    };
+  },
+  components: {
+    ProductCrud,
+  },
+  created() {},
 };
 </script>

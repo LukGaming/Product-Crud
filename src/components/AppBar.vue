@@ -7,6 +7,7 @@
           style="min-height: 100vh; z-index: 9999"
           absolute
         > -->
+
         <div id="content">
           <div>
             <v-app-bar dark fixed style="background: rgba(255, 255, 255, 0.1)">
@@ -94,18 +95,20 @@
             </v-navigation-drawer>
           </div>
 
-          <div class="mb-16" >
+          <div class="mb-16">
             <transition
               appear
               enter-active-class="animate__animated animate__bounceInLeft animate__faster"
               leave-active-class="animate__animated animate__bounceOutRight animate__faster"
               mode="out-in"
             >
-              <router-view class="mt-16"></router-view>
+              <v-container
+                ><router-view class="mt-16"></router-view
+              ></v-container>
             </transition>
           </div>
         </div>
-        <SnackBarMessageComponent :SnackBarOptions="SnackBarOptions" />
+        <SnackBarMessageComponent/>
       </v-main>
     </v-app>
   </div>
@@ -172,7 +175,7 @@ export default {
 };
 </script>
 
-<style >
+<style>
 #content {
   position: absolute;
   height: 100vh;

@@ -3,19 +3,21 @@
     <div class="text-center mt-16">
       <SnackBarMessageComponent :SnackBarOptions="SnackBarOptions" />
     </div>
-    Teste
+    {{teste}}
   </div>
 </template>
 
 <script>
 import SnackBarMessageComponent from "../utils/SnackBarMessageComponent.vue";
+import { mapGetters } from 'vuex'
 export default {
   components: {
     SnackBarMessageComponent,
   },
-
+  computed: {
+    ...mapGetters(['teste'])
+  },
   data() {
-
     return {
       SnackBarOptions: {
         snackbar: false,

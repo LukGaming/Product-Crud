@@ -3,13 +3,20 @@
     <div class="d-flex column justify-center">
       <h1 v-if="method == 'create'" class="mt-10">Criando um novo Produto</h1>
       <h1 v-if="method == 'edit'" class="mt-10">Editando Produto - {{ id }}</h1>
-      <h1 v-if="method == 'read'" class="mt-10">Visualizando Produto - {{ id }}</h1>
+      <h1 v-if="method == 'read'" class="mt-10">
+        Visualizando Produto - {{ id }}
+      </h1>
     </div>
     <div>
       <!-- Snack bar é a mensagem depois que o produto for criado ou editado -->
+      <dialogCreateCategoriaComponent />
       <SnackBarMessageComponent :SnackBarOptions="SnackBarOptions" />
-      <v-form lazy-validation class="mx-16">
-        <v-text-field v-model="nome" label="Nome" :readonly="inputsDisabled"></v-text-field>
+      <v-form lazy-validation>
+        <v-text-field
+          v-model="nome"
+          label="Nome"
+          :readonly="inputsDisabled"
+        ></v-text-field>
         <div v-if="v$.nome.$error">
           <v-alert color="red" type="warning" dense>
             O campo de
@@ -26,12 +33,19 @@
           ></money>
         </div>
         <div class="d-flex">
-          <v-select v-model="select" :items="nome_categorias" label="Categoria"></v-select>
-          <dialogCreateCategoriaComponent
-            :SnackBarOptions="SnackBarOptions"
-            :getAllCategoryes="getAllCategoryes"
-            :dialog="dialog"
-          />
+          <v-select
+            v-model="select"
+            :items="categories"
+            item-text="nome_categoria"
+            item-value="id"
+            label="Categoria"
+          ></v-select>
+          
+          <v-btn
+            color="red"
+            @click="setDialogCreateCategory({ part: 'dialog', value: true })"
+            ><v-icon dark> mdi-plus </v-icon></v-btn
+          >
         </div>
 
         <div v-if="v$.valor.$error">
@@ -40,12 +54,15 @@
             <strong>Valor</strong> não pode ficar vazio
           </v-alert>
         </div>
-        <v-textarea v-model="descricao" label="Descricao" :readonly="inputsDisabled"></v-textarea>
+        <v-textarea
+          v-model="descricao"
+          label="Descricao"
+          :readonly="inputsDisabled"
+        ></v-textarea>
         <div v-if="v$.descricao.$error">
           <v-alert color="red" type="warning" dense>
             Campo de
-            <strong>Descricao</strong> deve conter entre 20 e 2000
-            Caracteres
+            <strong>Descricao</strong> deve conter entre 20 e 2000 Caracteres
           </v-alert>
         </div>
         <div v-if="method == 'edit'">
@@ -60,7 +77,12 @@
         <div v-if="method == 'edit'">
           <div class="d-flex justify-center">
             <v-row class="d-flex justify-center mb-16">
-              <v-col v-for="image in imagens" :key="image.id" class="d-flex child-flex" cols="1">
+              <v-col
+                v-for="image in imagens"
+                :key="image.id"
+                class="d-flex child-flex"
+                cols="1"
+              >
                 <div class="imagens">
                   <div v-if="method == 'edit'">
                     <v-icon @click="removerImagem(image.id)">mdi-delete</v-icon>
@@ -71,8 +93,15 @@
                     class="grey lighten-2"
                   >
                     <template v-slot:placeholder>
-                      <v-row class="fill-height ma-0" align="center" justify="center">
-                        <v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>
+                      <v-row
+                        class="fill-height ma-0"
+                        align="center"
+                        justify="center"
+                      >
+                        <v-progress-circular
+                          indeterminate
+                          color="grey lighten-5"
+                        ></v-progress-circular>
                       </v-row>
                     </template>
                   </v-img>
@@ -101,11 +130,20 @@
                 cols="1"
               >
                 <div class="imagens">
-                  <v-icon @click="removerPreviewImage(index)">mdi-delete</v-icon>
+                  <v-icon @click="removerPreviewImage(index)"
+                    >mdi-delete</v-icon
+                  >
                   <v-img :src="image" aspect-ratio="1" class="grey lighten-2">
                     <template v-slot:placeholder>
-                      <v-row class="fill-height ma-0" align="center" justify="center">
-                        <v-progress-circular indeterminate color="grey lighten-5"></v-progress-circular>
+                      <v-row
+                        class="fill-height ma-0"
+                        align="center"
+                        justify="center"
+                      >
+                        <v-progress-circular
+                          indeterminate
+                          color="grey lighten-5"
+                        ></v-progress-circular>
                       </v-row>
                     </template>
                   </v-img>
@@ -113,38 +151,21 @@
               </v-col>
             </v-row>
           </div>
-          <!--Preview Images-->
-
-          <!-- <v-btn
-            color="primary"
-            @click="submit"
-            class="mt-10"
-            :loading="loading"
-            :disabled="inputsDisabled"
-          >
-            Cadastrar Produto
-          </v-btn>-->
           <v-btn
             @click="submit"
             :loading="loading"
             depressed
             class="wrapper gold mt-10"
-          >Cadastrar Produto</v-btn>
+            >Cadastrar Produto</v-btn
+          >
         </div>
         <div v-if="method == 'edit'" class="d-flex justify-center">
-          <!-- <v-btn
-            color="primary"
-            @click="submit"
-            class="mx-10"
-            :loading="loading"
+          <v-btn @click="submit" class="mx-10 wrapper gold" :loading="loading"
+            >Salvar Alterações</v-btn
           >
-            Salvar Alterações
-          </v-btn>
-          <v-btn color="warning" @click="excluirProduto" class="mx-10">
-            Excluir Produto
-          </v-btn>-->
-          <v-btn @click="submit" class="mx-10 wrapper gold" :loading="loading">Salvar Alterações</v-btn>
-          <v-btn @click="excluirProduto" class="wrapper gold mx-10">Excluir Produto</v-btn>
+          <v-btn @click="excluirProduto" class="wrapper gold mx-10"
+            >Excluir Produto</v-btn
+          >
         </div>
       </v-form>
     </div>
@@ -152,9 +173,10 @@
 </template>
 
 <script>
+import { mapGetters, mapActions } from "vuex";
 import SnackBarMessageComponent from "../utils/SnackBarMessageComponent.vue";
 import submit from "../modules/produtos/submitProduct.js";
-import getAllCategoryes from "../modules/produtos/getAllCategoryes.js";
+// import getAllCategoryes from "../modules/produtos/getAllCategoryes.js";
 import resetForm from "../modules/produtos/resetForm.js";
 import getProductByID from "../modules/produtos/getProductByID.js";
 import editarProduto from "../modules/produtos/editarProduto.js";
@@ -186,24 +208,25 @@ export default {
   },
 
   computed: {
+    ...mapGetters(["teste", "categories"]),
     swatchStyle() {
-      const { menu } = this
+      const { menu } = this;
       return {
         backgroundColor: this.shipsData.Color,
-        cursor: 'pointer',
-        height: '30px',
-        width: '30px',
-        borderRadius: menu ? '50%' : '4px',
-        transition: 'border-radius 200ms ease-in-out'
-      }
-    }
+        cursor: "pointer",
+        height: "30px",
+        width: "30px",
+        borderRadius: menu ? "50%" : "4px",
+        transition: "border-radius 200ms ease-in-out",
+      };
+    },
   },
   data() {
     return {
       shipsData: {
-        Color: '#1976D2FF'
+        Color: "#1976D2FF",
       },
-      mask: '#XXXXXXXX',
+      mask: "#XXXXXXXX",
       menu: false,
       SnackBarOptions: {
         snackbar: false,
@@ -212,8 +235,7 @@ export default {
       novas_imagens: [],
       imagePreview: [],
       dialog: false,
-      select: [],
-      nome_categorias: [],
+      select: null,
       categorias: [],
       imagens: [],
       nova_categoria: "",
@@ -243,7 +265,8 @@ export default {
     options: Object,
   },
   created() {
-    this.getAllCategoryes();
+    // this.getAllCategoryes();
+    this.getCategories();
     if (this.$route.name == "produto/create") {
       //Em caso da rota ser Create, aparecer os inputs vazios
       this.method = "create";
@@ -261,6 +284,59 @@ export default {
     }
   },
   methods: {
+    ...mapActions(["setDialogCreateCategory", "setCategories","setSnackBar"]),
+    async getCategories() {
+      this.$http("api/categorias").then((res) => {
+        res.data.data.forEach((element) => {
+          this.setCategories(element);
+        });
+      });
+    },
+    async submit() {
+      if (this.method == "create") {
+        const isFormCorrect = await this.v$.$validate();
+        if (!isFormCorrect) {
+          return;
+        } else {
+          this.loading = true;
+          var formData = new FormData();
+          this.imagens.forEach((image) => {
+            formData.append("images[]", image);
+          });
+          console.log(this.select)
+          formData.append("nome", this.nome);
+          formData.append("valor", this.valor);
+          formData.append("descricao", this.descricao);
+          formData.append("user_id", localStorage.getItem("userId"));
+          formData.append("id_categoria", this.select);
+          this.$http.post("api/produtos", formData).then((res) => {
+            this.v$.$reset();
+            this.resetForm();
+            this.loading = false;
+            this.setSnackBar({
+                part: "snackbarMessage",
+                value: "Produto Criado com sucesso!",
+              });
+              this.setSnackBar({
+                part: "snackbar",
+                value: true,
+              });
+            this.select = "";
+            return res;
+          });
+        }
+        return;
+      }
+      if (this.method == "edit") {
+        const isFormCorrect = await this.v$.$validate();
+        if (!isFormCorrect) {
+          return;
+        } else {
+          this.editarProduto();
+        }
+        return isFormCorrect;
+      }
+    },
     preview_images(e) {
       for (let i = 0; i < e.length; i++) {
         let images = e[i];
@@ -283,7 +359,6 @@ export default {
       this.imagePreview.push(event);
     },
     ...submit,
-    ...getAllCategoryes,
     ...resetForm,
     ...getProductByID,
     ...editarProduto,
@@ -294,8 +369,7 @@ export default {
     ...pegausuario,
   },
   ...validations,
-}
-
+};
 </script>
 
 <style>

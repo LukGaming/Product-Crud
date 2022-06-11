@@ -10,10 +10,11 @@ import './plugins/money.js'
 import './utils/button_gold.css';
 import '../node_modules/vue-anka-cropper/dist/VueAnkaCropper.css';
 import './plugins/konva'
+import store from '../src/store/index'
 Vue.config.productionTip = false
-
 new Vue({
   router,
   vuetify,
+  store,
   render: h => h(App)
 }).$mount('#app')

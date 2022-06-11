@@ -15,7 +15,6 @@ export default {
         }
         if(this.method == 'create'){
             let imagens_enviadas = [];
-            console.log(this.imagens)
             for (let i = 0; i < this.imagens.length; i++) {
                 let formData = new FormData();
                 formData.append('fotos', this.imagens[i])
