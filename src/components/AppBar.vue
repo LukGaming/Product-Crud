@@ -105,24 +105,17 @@
             </transition>
           </div>
         </div>
-        <!-- </v-card> -->
-        <div id="background">
-          <Background />
-        </div>
         <SnackBarMessageComponent :SnackBarOptions="SnackBarOptions" />
       </v-main>
     </v-app>
-    
   </div>
 </template>
 
 <script>
-import Background from "../views/Background.vue";
 import logout from "../modules/session/logout";
 import SnackBarMessageComponent from "../utils/SnackBarMessageComponent.vue";
 export default {
   components: {
-    Background,
     SnackBarMessageComponent,
   },
   data: () => ({

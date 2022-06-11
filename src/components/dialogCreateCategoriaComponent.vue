@@ -5,9 +5,6 @@
         <v-icon dark>
             mdi-plus
         </v-icon>
-
-        <!--  -->
-        <!--  -->
         <v-dialog v-model="dialog" width="700">
             <template v-slot:activator="{ on, attrs }">
                 <v-btn color="red lighten-2" dark fab small v-bind="attrs" v-on="on">
